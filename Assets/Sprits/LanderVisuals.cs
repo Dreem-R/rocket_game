@@ -32,16 +32,12 @@ public class LanderVisuals : MonoBehaviour
 
     private void Lander_OnRightForce(object sender, System.EventArgs e)
     {
-        SetEnableThrusterPraticeSystem(LeftThrusterPracticeSystem, false);
-        SetEnableThrusterPraticeSystem(MiddleThrusterPracticeSystem, false);
         SetEnableThrusterPraticeSystem(RightThrusterPracticeSystem, true);
     }
 
     private void Lander_OnLeftForce(object sender, System.EventArgs e)
     {
         SetEnableThrusterPraticeSystem(LeftThrusterPracticeSystem, true);
-        SetEnableThrusterPraticeSystem(MiddleThrusterPracticeSystem, false);
-        SetEnableThrusterPraticeSystem(RightThrusterPracticeSystem, false);
     }
 
     private void Lander_OnUpForce(object sender, System.EventArgs e)

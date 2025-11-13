@@ -9,6 +9,7 @@ public class Lander : MonoBehaviour
     private Rigidbody2D lander_rb;
     private float force = 700f;
     private float turnspeed = 100f;
+    private float FuelAmount = 10f;
 
     public event EventHandler OnUpForce;
     public event EventHandler OnLeftForce;
@@ -23,10 +24,25 @@ public class Lander : MonoBehaviour
     private void FixedUpdate()
     {
         OnBeforeForce?.Invoke(this, EventArgs.Empty);
+
+
+        if(FuelAmount <= 0f)
+        {
+            return;
+        }
+
+        if (Keyboard.current.upArrowKey.isPressed ||
+            Keyboard.current.leftArrowKey.isPressed||
+            Keyboard.current.rightArrowKey.isPressed)
+        {
+            ConsumeFuel();
+            Debug.Log("Fuel: " + FuelAmount);
+        }
         //Accelerate forward
         if (Keyboard.current.upArrowKey.isPressed)
         {
             lander_rb.AddForce(force * transform.up * Time.deltaTime);
+
             OnUpForce?.Invoke(this, EventArgs.Empty);
         }
 
@@ -34,13 +50,13 @@ public class Lander : MonoBehaviour
         if (Keyboard.current.rightArrowKey.isPressed)
         {
              lander_rb.AddTorque(-turnspeed * Time.deltaTime);
-             OnRightForce?.Invoke(this, EventArgs.Empty);
+             OnLeftForce?.Invoke(this, EventArgs.Empty);
         }
         //Left Turn
         if (Keyboard.current.leftArrowKey.isPressed)
         {
             lander_rb.AddTorque(+turnspeed * Time.deltaTime);
-            OnLeftForce?.Invoke(this, EventArgs.Empty);
+            OnRightForce?.Invoke(this, EventArgs.Empty);
         }
     }
     // Update is called once per frame
@@ -95,5 +111,11 @@ public class Lander : MonoBehaviour
             return;
         }
         Debug.Log("Crashed outside landing pad");
+    }
+
+    private void ConsumeFuel()
+    {
+        float fuelconsumptionAmount = 1f;
+        FuelAmount -= fuelconsumptionAmount * Time.deltaTime;
     }
 }
