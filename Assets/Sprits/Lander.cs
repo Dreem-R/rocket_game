@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.SocialPlatforms.Impl;
 
@@ -7,7 +9,12 @@ public class Lander : MonoBehaviour
     private Rigidbody2D lander_rb;
     private float force = 700f;
     private float turnspeed = 100f;
-    
+
+    public event EventHandler OnUpForce;
+    public event EventHandler OnLeftForce;
+    public event EventHandler OnRightForce;
+    public event EventHandler OnBeforeForce;
+
     private void Awake()
     {
         lander_rb = GetComponent<Rigidbody2D>();
@@ -15,17 +22,25 @@ public class Lander : MonoBehaviour
 
     private void FixedUpdate()
     {
+        OnBeforeForce?.Invoke(this, EventArgs.Empty);
+        //Accelerate forward
         if (Keyboard.current.upArrowKey.isPressed)
         {
             lander_rb.AddForce(force * transform.up * Time.deltaTime);
+            OnUpForce?.Invoke(this, EventArgs.Empty);
         }
+
+        //Right Turn
         if (Keyboard.current.rightArrowKey.isPressed)
         {
              lander_rb.AddTorque(-turnspeed * Time.deltaTime);
+             OnRightForce?.Invoke(this, EventArgs.Empty);
         }
+        //Left Turn
         if (Keyboard.current.leftArrowKey.isPressed)
         {
             lander_rb.AddTorque(+turnspeed * Time.deltaTime);
+            OnLeftForce?.Invoke(this, EventArgs.Empty);
         }
     }
     // Update is called once per frame
