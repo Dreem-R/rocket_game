@@ -63,18 +63,20 @@ public class Lander : MonoBehaviour
             /*score using angle checking
                 - using dot_vector - 1f and normalize to get the percentage of angle its off by
                 - multiplying that percentage to find score after deduction
+                - max score you can get here is 100
             */
             float landing_angle_score = maxscore_landing_angle - Mathf.Abs(dot_vector - 1f) * score_normalize_dot_vector * maxscore_landing_angle;
 
             /*
               Score using impact checking
-                - max score you can get here is 40
+                - max score you can get here is 400
             */
             float maxscore_landing_speed = 100f;
             float landing_speed_score = (soft_landing_speed - relative_velocity) * maxscore_landing_speed;
 
-            Debug.Log("Score by angel: " + landing_angle_score);
-            Debug.Log("Score by speed: " + landing_speed_score);
+
+            int total_score = Mathf.RoundToInt((landing_angle_score + landing_speed_score) * landingPad.get_multipier());
+            Debug.Log("Score: "+ total_score);
             return;
         }
         Debug.Log("Crashed outside landing pad");
