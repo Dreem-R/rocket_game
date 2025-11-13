@@ -6,6 +6,9 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class Lander : MonoBehaviour
 {
+
+    public static Lander Instance { get; private set; }
+
     private Rigidbody2D lander_rb;
     private float force = 700f;
     private float turnspeed = 100f;
@@ -15,9 +18,16 @@ public class Lander : MonoBehaviour
     public event EventHandler OnLeftForce;
     public event EventHandler OnRightForce;
     public event EventHandler OnBeforeForce;
+    public event EventHandler OnCoinPickup;
+    public event EventHandler<OnLandedEventArgs> OnLanded;
+    public class OnLandedEventArgs : EventArgs
+    {
+        public int score;
+    }
 
     private void Awake()
     {
+        Instance = this;
         lander_rb = GetComponent<Rigidbody2D>();
     }
 
@@ -36,7 +46,6 @@ public class Lander : MonoBehaviour
             Keyboard.current.rightArrowKey.isPressed)
         {
             ConsumeFuel();
-            Debug.Log("Fuel: " + FuelAmount);
         }
         //Accelerate forward
         if (Keyboard.current.upArrowKey.isPressed)
@@ -108,9 +117,25 @@ public class Lander : MonoBehaviour
 
             int total_score = Mathf.RoundToInt((landing_angle_score + landing_speed_score) * landingPad.get_multipier());
             Debug.Log("Score: "+ total_score);
+            OnLanded?.Invoke(this,new OnLandedEventArgs { score = total_score });
             return;
         }
         Debug.Log("Crashed outside landing pad");
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.TryGetComponent(out FuelPickup fuelPickup))
+        {
+            float fuel_increment = 10f;
+            FuelAmount += fuel_increment;
+            fuelPickup.DestroySelf();
+        }
+        else if (collision.gameObject.TryGetComponent(out CoinPickup coinPickup))
+        {
+            OnCoinPickup?.Invoke(this, EventArgs.Empty);
+            coinPickup.DestroySelf();
+        }
     }
 
     private void ConsumeFuel()
