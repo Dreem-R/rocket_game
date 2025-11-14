@@ -33,6 +33,7 @@ public class LanderVisuals : MonoBehaviour
             case Lander.LandingType.TooSteepAngel:
                 //Crash Explosion!
                 Instantiate(LanderExplosionVFX, transform.position, Quaternion.identity);
+                gameObject.SetActive(false);
                 break;
 
         }
