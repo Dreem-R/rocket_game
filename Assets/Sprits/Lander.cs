@@ -13,6 +13,7 @@ public class Lander : MonoBehaviour
     private float force = 700f;
     private float turnspeed = 100f;
     private float FuelAmount = 10f;
+    private float MaxFuelAmount;
 
     public event EventHandler OnUpForce;
     public event EventHandler OnLeftForce;
@@ -22,13 +23,26 @@ public class Lander : MonoBehaviour
     public event EventHandler<OnLandedEventArgs> OnLanded;
     public class OnLandedEventArgs : EventArgs
     {
+        public LandingType landingType;
         public int score;
+        public float landingAngle;
+        public float landingSpeed;
+        public float ScoreMultiplier;
+    }
+
+    public enum LandingType
+    {
+        Success,
+        WrongLandingArea,
+        TooSteepAngel,
+        TooFastLanding,
     }
 
     private void Awake()
     {
         Instance = this;
         lander_rb = GetComponent<Rigidbody2D>();
+        MaxFuelAmount = FuelAmount;
     }
 
     private void FixedUpdate()
@@ -78,12 +92,21 @@ public class Lander : MonoBehaviour
     {
         if(collision.gameObject.TryGetComponent(out LandingPad landingPad))
         {
+            int Score_Multipier = landingPad.get_multipier();
             float soft_landing_speed = 4f;
             float relative_velocity = collision.relativeVelocity.magnitude;
 
             if (relative_velocity > soft_landing_speed)
             {
-                Debug.Log("You Crashed!");
+                OnLanded?.Invoke(this, new OnLandedEventArgs
+                {
+                    landingType = LandingType.TooSteepAngel,
+                    score = 0,
+                    landingSpeed = relative_velocity,
+                    landingAngle = 0f,
+                    ScoreMultiplier = 0
+                });
+                Debug.Log("Speed Crashed!");
                 return;
             }
             //vector dot product to get landing angle
@@ -92,7 +115,15 @@ public class Lander : MonoBehaviour
             float min_dot_vector = 0.9f;
             if (dot_vector < min_dot_vector)
             {
-                Debug.Log("Crashed!!");
+                OnLanded?.Invoke(this, new OnLandedEventArgs
+                {
+                    landingType = LandingType.TooSteepAngel,
+                    score = 0,
+                    landingSpeed = relative_velocity,
+                    landingAngle = dot_vector,
+                    ScoreMultiplier = 0
+                });
+                Debug.Log("Angle Crash!");
                 return;
             }
             Debug.Log("Landed Safely");
@@ -114,12 +145,24 @@ public class Lander : MonoBehaviour
             float maxscore_landing_speed = 100f;
             float landing_speed_score = (soft_landing_speed - relative_velocity) * maxscore_landing_speed;
 
-
-            int total_score = Mathf.RoundToInt((landing_angle_score + landing_speed_score) * landingPad.get_multipier());
-            Debug.Log("Score: "+ total_score);
-            OnLanded?.Invoke(this,new OnLandedEventArgs { score = total_score });
+            int total_score = Mathf.RoundToInt((landing_angle_score + landing_speed_score) * Score_Multipier);
+            OnLanded?.Invoke(this,new OnLandedEventArgs {
+                landingType = LandingType.Success,
+                score = total_score,
+                landingSpeed = relative_velocity,
+                landingAngle = dot_vector,
+                ScoreMultiplier = Score_Multipier
+            });
             return;
         }
+        OnLanded?.Invoke(this, new OnLandedEventArgs
+        {
+            landingType = LandingType.WrongLandingArea,
+            score = 0,
+            landingSpeed = 0f,
+            landingAngle = 0f,
+            ScoreMultiplier = 0
+        });
         Debug.Log("Crashed outside landing pad");
     }
 
@@ -129,6 +172,10 @@ public class Lander : MonoBehaviour
         {
             float fuel_increment = 10f;
             FuelAmount += fuel_increment;
+            if(FuelAmount > MaxFuelAmount)
+            {
+                FuelAmount = MaxFuelAmount;
+            }
             fuelPickup.DestroySelf();
         }
         else if (collision.gameObject.TryGetComponent(out CoinPickup coinPickup))
@@ -136,6 +183,24 @@ public class Lander : MonoBehaviour
             OnCoinPickup?.Invoke(this, EventArgs.Empty);
             coinPickup.DestroySelf();
         }
+    }
+    public float Get_Normalized_FuelAmount()
+    {
+        return FuelAmount/MaxFuelAmount;
+    }
+    public float GetSpeedX()
+    {
+        return lander_rb.linearVelocityX;
+    }
+
+    public float GetSpeedY()
+    {
+        return lander_rb.linearVelocityY;
+    }
+
+    public float GetFuel()
+    {
+        return FuelAmount;
     }
 
     private void ConsumeFuel()
