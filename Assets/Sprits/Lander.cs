@@ -50,6 +50,7 @@ public class Lander : MonoBehaviour
     private float turnspeed = 100f;
     private float FuelAmount = 10f;
     private float MaxFuelAmount;
+    private float DeadZone = 0.4f;
 
     private States state;
 
@@ -70,9 +71,10 @@ public class Lander : MonoBehaviour
         {
             default:
             case States.WaitingToStart:
-                if (Keyboard.current.upArrowKey.isPressed ||
-                    Keyboard.current.leftArrowKey.isPressed ||
-                    Keyboard.current.rightArrowKey.isPressed)
+                if (GameInput.Instance.IsUpActionPressed() ||
+                    GameInput.Instance.IsRightActionPressed() ||
+                    GameInput.Instance.IsLeftActionPressed() ||
+                    GameInput.Instance.IsJoyStickUsed() != Vector2.zero)
                 {
                     lander_rb.gravityScale = GRAVITY_NORMAL;
                     state = States.Normal;
@@ -86,14 +88,16 @@ public class Lander : MonoBehaviour
                     return;
                 }
 
-                if (Keyboard.current.upArrowKey.isPressed ||
-                    Keyboard.current.leftArrowKey.isPressed ||
-                    Keyboard.current.rightArrowKey.isPressed)
+                if (GameInput.Instance.IsUpActionPressed() ||
+                    GameInput.Instance.IsRightActionPressed() ||
+                    GameInput.Instance.IsLeftActionPressed() ||
+                    GameInput.Instance.IsJoyStickUsed() != Vector2.zero)
                 {
                     ConsumeFuel();
                 }
                 //Accelerate forward
-                if (Keyboard.current.upArrowKey.isPressed)
+                if (GameInput.Instance.IsUpActionPressed() ||
+                    GameInput.Instance.IsJoyStickUsed().y > DeadZone)
                 {
                     lander_rb.AddForce(force * transform.up * Time.deltaTime);
 
@@ -101,13 +105,15 @@ public class Lander : MonoBehaviour
                 }
 
                 //Right Turn
-                if (Keyboard.current.rightArrowKey.isPressed)
+                if (GameInput.Instance.IsRightActionPressed() ||
+                    GameInput.Instance.IsJoyStickUsed().x > DeadZone)
                 {
                     lander_rb.AddTorque(-turnspeed * Time.deltaTime);
                     OnLeftForce?.Invoke(this, EventArgs.Empty);
                 }
                 //Left Turn
-                if (Keyboard.current.leftArrowKey.isPressed)
+                if (GameInput.Instance.IsLeftActionPressed() ||
+                    GameInput.Instance.IsJoyStickUsed().x < -DeadZone)
                 {
                     lander_rb.AddTorque(+turnspeed * Time.deltaTime);
                     OnRightForce?.Invoke(this, EventArgs.Empty);

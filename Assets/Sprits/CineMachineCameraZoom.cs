@@ -5,7 +5,7 @@ public class CineMachineCameraZoom : MonoBehaviour
 {
     private static float NORMAL_ORTHOGRAPHICSIZE = 10f;
 
-    public static CineMachineCameraZoom Instance;
+    public static CineMachineCameraZoom Instance { get; private set; }
 
     [SerializeField] private CinemachineCamera cinemachineCamera;
 
