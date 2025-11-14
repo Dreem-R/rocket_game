@@ -6,20 +6,20 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class Lander : MonoBehaviour
 {
+    private const float GRAVITY_NORMAL = 0.7f;
 
     public static Lander Instance { get; private set; }
-
-    private Rigidbody2D lander_rb;
-    private float force = 700f;
-    private float turnspeed = 100f;
-    private float FuelAmount = 10f;
-    private float MaxFuelAmount;
 
     public event EventHandler OnUpForce;
     public event EventHandler OnLeftForce;
     public event EventHandler OnRightForce;
     public event EventHandler OnBeforeForce;
     public event EventHandler OnCoinPickup;
+    public event EventHandler<OnStateChangeEventAgrs> OnStateChange;
+    public class OnStateChangeEventAgrs : EventArgs
+    {
+        public States new_state;
+    }
     public event EventHandler<OnLandedEventArgs> OnLanded;
     public class OnLandedEventArgs : EventArgs
     {
@@ -38,10 +38,27 @@ public class Lander : MonoBehaviour
         TooFastLanding,
     }
 
+    public enum States
+    {
+        WaitingToStart,
+        Normal,
+        GameOver,
+    }
+
+    private Rigidbody2D lander_rb;
+    private float force = 700f;
+    private float turnspeed = 100f;
+    private float FuelAmount = 10f;
+    private float MaxFuelAmount;
+
+    private States state;
+
     private void Awake()
     {
         Instance = this;
+        state = States.WaitingToStart;
         lander_rb = GetComponent<Rigidbody2D>();
+        lander_rb.gravityScale = 0f;
         MaxFuelAmount = FuelAmount;
     }
 
@@ -49,37 +66,55 @@ public class Lander : MonoBehaviour
     {
         OnBeforeForce?.Invoke(this, EventArgs.Empty);
 
+        switch (state)
+        {
+            default:
+            case States.WaitingToStart:
+                if (Keyboard.current.upArrowKey.isPressed ||
+                    Keyboard.current.leftArrowKey.isPressed ||
+                    Keyboard.current.rightArrowKey.isPressed)
+                {
+                    lander_rb.gravityScale = GRAVITY_NORMAL;
+                    state = States.Normal;
+                    SetState(States.Normal);
+                }
+                break;
 
-        if(FuelAmount <= 0f)
-        {
-            return;
-        }
+            case States.Normal:
+                if (FuelAmount <= 0f)
+                {
+                    return;
+                }
 
-        if (Keyboard.current.upArrowKey.isPressed ||
-            Keyboard.current.leftArrowKey.isPressed||
-            Keyboard.current.rightArrowKey.isPressed)
-        {
-            ConsumeFuel();
-        }
-        //Accelerate forward
-        if (Keyboard.current.upArrowKey.isPressed)
-        {
-            lander_rb.AddForce(force * transform.up * Time.deltaTime);
+                if (Keyboard.current.upArrowKey.isPressed ||
+                    Keyboard.current.leftArrowKey.isPressed ||
+                    Keyboard.current.rightArrowKey.isPressed)
+                {
+                    ConsumeFuel();
+                }
+                //Accelerate forward
+                if (Keyboard.current.upArrowKey.isPressed)
+                {
+                    lander_rb.AddForce(force * transform.up * Time.deltaTime);
 
-            OnUpForce?.Invoke(this, EventArgs.Empty);
-        }
+                    OnUpForce?.Invoke(this, EventArgs.Empty);
+                }
 
-        //Right Turn
-        if (Keyboard.current.rightArrowKey.isPressed)
-        {
-             lander_rb.AddTorque(-turnspeed * Time.deltaTime);
-             OnLeftForce?.Invoke(this, EventArgs.Empty);
-        }
-        //Left Turn
-        if (Keyboard.current.leftArrowKey.isPressed)
-        {
-            lander_rb.AddTorque(+turnspeed * Time.deltaTime);
-            OnRightForce?.Invoke(this, EventArgs.Empty);
+                //Right Turn
+                if (Keyboard.current.rightArrowKey.isPressed)
+                {
+                    lander_rb.AddTorque(-turnspeed * Time.deltaTime);
+                    OnLeftForce?.Invoke(this, EventArgs.Empty);
+                }
+                //Left Turn
+                if (Keyboard.current.leftArrowKey.isPressed)
+                {
+                    lander_rb.AddTorque(+turnspeed * Time.deltaTime);
+                    OnRightForce?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+            case States.GameOver:
+                break;
         }
     }
     // Update is called once per frame
@@ -106,6 +141,7 @@ public class Lander : MonoBehaviour
                     landingAngle = 0f,
                     ScoreMultiplier = 0
                 });
+                SetState(States.GameOver);
                 Debug.Log("Speed Crashed!");
                 return;
             }
@@ -123,6 +159,7 @@ public class Lander : MonoBehaviour
                     landingAngle = dot_vector,
                     ScoreMultiplier = 0
                 });
+                SetState(States.GameOver);
                 Debug.Log("Angle Crash!");
                 return;
             }
@@ -146,6 +183,7 @@ public class Lander : MonoBehaviour
             float landing_speed_score = (soft_landing_speed - relative_velocity) * maxscore_landing_speed;
 
             int total_score = Mathf.RoundToInt((landing_angle_score + landing_speed_score) * Score_Multipier);
+            SetState(States.GameOver);
             OnLanded?.Invoke(this,new OnLandedEventArgs {
                 landingType = LandingType.Success,
                 score = total_score,
@@ -155,6 +193,7 @@ public class Lander : MonoBehaviour
             });
             return;
         }
+        SetState(States.GameOver);
         OnLanded?.Invoke(this, new OnLandedEventArgs
         {
             landingType = LandingType.WrongLandingArea,
@@ -184,6 +223,16 @@ public class Lander : MonoBehaviour
             coinPickup.DestroySelf();
         }
     }
+
+    private void SetState(States NewState)
+    {
+        this.state = NewState;
+        OnStateChange?.Invoke(this, new OnStateChangeEventAgrs
+        {
+            new_state = NewState
+        });
+    }
+
     public float Get_Normalized_FuelAmount()
     {
         return FuelAmount/MaxFuelAmount;
