@@ -1,8 +1,15 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    private static int CurrentLevel = 1;
+
+    [SerializeField] private List<GameLevel> GameLevelList;
+
     private int score;
     private float time;
     private bool IsTimerStart;
@@ -10,7 +17,6 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        IsTimerStart = false;
     }
 
     private void Start()
@@ -18,6 +24,9 @@ public class GameManager : MonoBehaviour
         Lander.Instance.OnCoinPickup += Lander_OnCoinPickup;
         Lander.Instance.OnLanded += Lander_OnLanded;
         Lander.Instance.OnStateChange += Lander_OnStateChange;
+
+        IsTimerStart = false;
+        LoadCurrentLevel();
     }
 
     private void Lander_OnStateChange(object sender, Lander.OnStateChangeEventAgrs e)
@@ -32,7 +41,17 @@ public class GameManager : MonoBehaviour
             time += Time.deltaTime;
         }
     }
-
+    private void LoadCurrentLevel()
+    {
+        foreach(GameLevel gamelevel in GameLevelList)
+        {
+            if(gamelevel.GetLevelNumber() == CurrentLevel)
+            {
+                GameLevel SpawnedGameLevel = Instantiate(gamelevel, Vector3.zero, Quaternion.identity);
+                Lander.Instance.transform.position = SpawnedGameLevel.GetStartPosition();
+            }
+        }
+    }
     private void Lander_OnLanded(object sender, Lander.OnLandedEventArgs e)
     {
         addscore(e.score);
@@ -55,5 +74,15 @@ public class GameManager : MonoBehaviour
     public float GetTime()
     {
         return time;
+    }
+
+    public void NextLevel()
+    {
+        CurrentLevel++;
+        SceneManager.LoadScene(0);
+    }
+    public void RetryLevel()
+    { 
+        SceneManager.LoadScene(0);
     }
 }
