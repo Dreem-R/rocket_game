@@ -36,7 +36,7 @@ rocket_game/
 ## Getting Started
 
 ### Prerequisites
-- **Unity** (version compatible with your project)
+- **Unity** 6.0
 - **Visual Studio** (recommended for C# scripting)
 - **Git** (for version control)
 
