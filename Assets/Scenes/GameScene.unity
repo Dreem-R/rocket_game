@@ -1270,7 +1270,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 25.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3515,7 +3515,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 10
+    OrthographicSize: 25.5
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -3859,6 +3859,7 @@ MonoBehaviour:
   GameLevelList:
   - {fileID: 6858765467656776090, guid: 0bfd86d3397b9af488bbf9ea8ded94fd, type: 3}
   - {fileID: 6858765467656776090, guid: 8a2012d3b2fbf02419a7a2f715d712ad, type: 3}
+  - {fileID: 6858765467656776090, guid: 0eef2eeb37747ea41adaa40be3265168, type: 3}
   CinemachineCamera: {fileID: 1573343888}
 --- !u!4 &1630775396
 Transform:

@@ -73,3 +73,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/Assets/Feel
+Assets/Feel.meta
+/Assets/Plugins/PrimeTween
+Assets/Plugins/PrimeTween.meta
+Packages/com.kyrylokuzyk.primetween.tgz
