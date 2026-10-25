@@ -7,6 +7,8 @@ public class CoinVisual : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private MMF_Player idleFeedback;
+    [SerializeField] private ScorePopup scorePopupPrefab;
+    [SerializeField] private GameObject coinPickupVFXPrefab;
 
     // Timings for idle feedback
     [SerializeField] private float minWaitTime = 1f;
@@ -29,6 +31,20 @@ public class CoinVisual : MonoBehaviour
     {
         StartCoroutine(IdleLoop());
         StartCoroutine(FlashLoop());
+        GetComponent<CoinPickup>().OnCollected += CoinPickup_OnCollected;
+    }
+
+    private void CoinPickup_OnCollected(object sender, System.EventArgs e)
+    {
+        StopAllCoroutines();
+        idleFeedback.StopFeedbacks();
+        Tween.MaterialProperty(flashMaterial, FlashAmountId,
+                startValue: 0f, endValue: 1f, duration: flashDuration, ease: Ease.OutQuad);
+        Tween.Scale(spriteRenderer.transform, startValue: Vector3.one, endValue: Vector3.zero,
+            duration: 0.2f, ease: Ease.InBack);
+        Instantiate(coinPickupVFXPrefab, transform.position, Quaternion.identity);
+        Instantiate(scorePopupPrefab, transform.position, Quaternion.identity).Setup("+500");
+        Debug.Log("CoinVisual_OnCollected");
     }
 
     private IEnumerator IdleLoop()

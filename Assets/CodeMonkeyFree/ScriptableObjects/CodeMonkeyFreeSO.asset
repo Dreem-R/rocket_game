@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentVersion: 1.00
   subtype: lunarLanderFree
-  lastShownTimestamp: 1792830581
+  lastShownTimestamp: 1792920313
   lastUpdateResponse:
     version: 1.00
     versionUrl: https://unitycodemonkey.com
-  checkedLastUpdateTimestamp: 1792830581
+  checkedLastUpdateTimestamp: 1792920314
   lastQOTDResponse:
     questionId: 355
     questionText: 'Is this valid code?
@@ -30,7 +30,7 @@ MonoBehaviour:
     answerC: 
     answerD: 
     answerE: 
-  lastQotdTimestamp: 1792830581
+  lastQotdTimestamp: 1792920314
   lastDynamicHeaderResponse:
     topImageUrl: https://codemonkeyexternal.blob.core.windows.net/external/Misc/codeMonkeyEndOfSummerBundleOct26.png
     topText: Back for a limited time until the END OF SUMMER, 80% OFF all my Courses
@@ -38,19 +38,19 @@ MonoBehaviour:
     topLink: summerbundle
     bottomText: FREE Game Dev Insights every week straight to your inbox!
     bottomLink: gamedevreport
-  lastDynamicHeaderTimestamp: 1792830581
+  lastDynamicHeaderTimestamp: 1792920314
   websiteLatestMessage:
     text: <a href="https://cmonkey.co/freecourses">Check out all my FREE courses!
       Click here!</a>
-  websiteLatestMessageTimestamp: 1792830581
+  websiteLatestMessageTimestamp: 1792920314
   websiteLatestVideos:
     videos:
+    - youTubeId: IOpC_qtcV_Q
+      title: A new C# version is NOT a new programming language!
     - youTubeId: H05_7PBPbzQ
       title: TOP 10 NEW Games, Made with Unity! (SEPTEMBER 2026)
     - youTubeId: zqxQ7PAeNN4
       title: Unity is FINALLY moving to ONE Render Pipeline!
     - youTubeId: qjNGL4qQvrQ
       title: TOP 10 FREE NEW Assets OCTOBER 2026!
-    - youTubeId: HD1wNUTZ0_Y
-      title: Sell 25,000 copies in 24 HOURS? Steam's Update EXPLAINED!
-  websiteLatestVideosTimestamp: 1792830581
+  websiteLatestVideosTimestamp: 1792920314
