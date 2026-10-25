@@ -132,7 +132,8 @@ public class Lander : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.TryGetComponent(out LandingPad landingPad))
+        if (state != States.Normal) return;
+        if (collision.gameObject.TryGetComponent(out LandingPad landingPad))
         {
             int Score_Multipier = landingPad.get_multipier();
             float soft_landing_speed = 4f;

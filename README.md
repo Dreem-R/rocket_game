@@ -15,6 +15,7 @@ I started this project by following [Code Monkey's](https://unitycodemonkey.com/
 - **Pick your pad.** Each landing pad has a score multiplier (x1, x5, x10), and the high-value pads are harder to reach.
 - **Manage your fuel.** Thrusting burns fuel; fuel canisters refill it.
 - **Collect coins** for bonus points.
+- **Carry cargo.** Hover inside a pickup zone until its ring fills, and a crate attaches to the rocket on a rope. Its swinging weight pulls you around, so every move needs more care. Delivering cargo is in progress.
 - Your landing score is based on impact speed and landing angle, multiplied by the pad's multiplier.
 
 ## Controls
@@ -32,7 +33,16 @@ I started this project by following [Code Monkey's](https://unitycodemonkey.com/
 - **Physics-based landing check.** A `Rigidbody2D` handles flight. When the rocket lands, it uses the collision's relative velocity and a dot product between the rocket's up vector and world up to decide between a soft landing, a speed crash and an angle crash.
 - **New Input System.** One set of input actions supports keyboard (WASD and arrow keys), gamepad and a mobile touch joystick.
 - **Cinemachine camera.** Before launch, the camera previews the whole level, then smoothly zooms in to follow the rocket.
-- **Game feel with Feel.** Coins have squash-and-stretch animations built with Feel, and a small script triggers them at random intervals so coins don't animate in sync.
+- **Game feel.** Coins squash and stretch (Feel) and flash white on their own random timers, so they never animate in sync. Collecting a coin shrinks it away, releases a sparkle burst and shows a score popup that pops in with squash and stretch (a PrimeTween sequence). Coins and fuel float with a gentle idle wiggle.
+- **Custom Shader Graph shaders.**
+  - `SpriteFlash` blends any sprite toward a flash color. Each object gets its own material copy, which is cleaned up when the object is destroyed.
+  - `RadialFill` draws a clockwise progress ring. It calculates each pixel's angle in the shader, so it needs no gradient texture.
+- **Cargo system.**
+  - One `CargoZone` component handles both pickup and drop zones, switched with an enum.
+  - Each cargo type is a ScriptableObject asset holding its icon, prefab and delivery score, so adding a new type needs no code.
+  - Zones update their color and icon in the editor through `OnValidate`, which makes building levels by hand quick.
+  - The rope is a `DistanceJoint2D` in "max distance only" mode, so it can go slack, drawn with a `LineRenderer`. Each cargo positions and attaches itself.
+- **Iteration tools.** Sandbox scenes and a popup tester script let effects be tuned live in Play mode. The Lander only depends on the input and sound managers, so it can be tested in any scene.
 - **Audio.** Separate sound and music managers with adjustable volume. Music keeps playing smoothly between scenes.
 
 ## Roadmap
@@ -43,17 +53,21 @@ I started this project by following [Code Monkey's](https://unitycodemonkey.com/
 - [x] Main menu, pause menu, game over screen
 - [x] Sound effects, music and volume settings
 - [x] Coin idle animation (squash and stretch)
-- [ ] White hit-flash shader (Shader Graph)
-- [ ] Coin pickup feedback: particles, floating score text, camera shake
+- [x] White hit-flash shader (Shader Graph)
+- [x] Coin pickup feedback: shrink, sparkle particles, score popup
+- [x] Idle wiggle on coins and fuel
+- [x] Cargo pickup zone with a hover timer, radial progress ring and rope physics
+- [ ] Cargo delivery zones and delivery score
+- [ ] Cargo collects coins and fuel, and breaks on hard impact
+- [ ] Key cargo that opens doors
 - [ ] Low-fuel warning and crash/landing effects
-- [ ] Cargo mechanic: pick up a crate on a rope and deliver it
 - [ ] Level select with saved best scores
 - [ ] Replace course art and audio with original assets
 - [ ] WebGL build on itch.io
 
 ## Built with
 
-- Unity 6 (6000.0.71f1), Universal Render Pipeline (2D Renderer)
+- Unity 6 (6000.0.71f1), Universal Render Pipeline (2D Renderer), Shader Graph
 - Cinemachine 3
 - Unity Input System
 - [Feel](https://feel.moremountains.com/) by More Mountains
@@ -74,11 +88,17 @@ Assets/
 │   ├── GameManager.cs      # Level loading, score, timer, pause
 │   ├── LanderVisuals.cs    # Thruster particles and explosion
 │   ├── LanderAudio.cs      # Thruster sound
-│   ├── CoinVisual.cs       # Random-interval coin animation (Feel)
+│   ├── CoinVisual.cs       # Coin idle animation, flash and pickup effects
+│   ├── ScorePopup.cs       # Floating score popup (PrimeTween sequence)
+│   ├── Cargo/              # Cargo, CargoZone, CargoTypeSO
+│   ├── Test/               # Tools for tuning effects in sandbox scenes
 │   └── ...
+├── Data/
+│   └── Cargo/          # Cargo type assets (ScriptableObjects)
+├── Shaders/            # SpriteFlash and RadialFill shader graphs
 ├── Prefabs/
 │   └── Levels/         # One prefab per level
-└── Scenes/             # Main menu, game and game over scenes
+└── Scenes/             # Main menu, game, game over and sandbox scenes
 ```
 
 ## Credits
